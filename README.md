@@ -1,4 +1,4 @@
-commit 1: Basic setup
+## commit 1: Basic setup
 
 ```shell
 yarn add hardhat
@@ -16,3 +16,19 @@ require("hardhat-gas-reporter")
 require("hardhat-contract-sizer")
 require("dotenv").config()
 ```
+
+## commit 2: Raffle contract basic setup
+
+Creating contract for Raffle, keeping state variables private and creating getter methods.
+// We want the address to be payable, as we will pay one player the winning ammount
+
+```solidity
+address payable[] private s_players;
+// Later adding players by making address payable
+s_players.push(payable(msg.sender));
+```
+
+## commit 3: Events
+
+There can be upto 3 indexed parameters, also known as topics. These are easy to search.
+event names are generally function name reversed

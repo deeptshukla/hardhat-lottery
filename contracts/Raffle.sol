@@ -14,6 +14,9 @@ contract Raffle {
     uint256 private immutable i_entranceFee;
     address payable[] private s_players; // We want the address to be payable, as we will pay one player the winning ammount
 
+    /*Events */
+    event RaffleEnter(address indexed player);
+
     constructor(uint256 entranceFee) {
         i_entranceFee = entranceFee;
     }
@@ -23,6 +26,7 @@ contract Raffle {
             revert Raffle__NotEnoughEthEntered();
         }
         s_players.push(payable(msg.sender));
+        emit RaffleEnter(msg.sender);
     }
 
     function getEntranceFee() public view returns (uint256) {
