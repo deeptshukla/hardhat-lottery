@@ -32,3 +32,24 @@ s_players.push(payable(msg.sender));
 
 There can be upto 3 indexed parameters, also known as topics. These are easy to search.
 event names are generally function name reversed
+
+## commit 4: Getting random number from chainlink VRF part1
+
+```shell
+yarn add --dev @chainlink/contracts
+```
+
+```solidity
+contract Raffle is VRFConsumerBaseV2 {
+    //... more code
+
+constructor(
+        address vrfCoordinatorV2Address,
+        uint64 subscriptionId,
+        bytes32 gasLane, // keyHash
+        uint256 entranceFee,
+        uint32 callbackGasLimit
+    ) VRFConsumerBaseV2(vrfCoordinatorV2Address) {
+```
+
+We need to call the parent class constructor while creating our constructor, similar to super keyword in java
