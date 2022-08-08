@@ -53,3 +53,9 @@ constructor(
 ```
 
 We need to call the parent class constructor while creating our constructor, similar to super keyword in java
+
+## commit 4: Getting random number from chainlink VRF part2
+
+requestRandomWinner() will be called, which will emit a requestId
+fulfillRandomWords() will receive random values and stores them with your contract(or do whatever you want to do after that)
+In our case, it will transfer the ammount to the randomly picked address.
