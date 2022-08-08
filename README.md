@@ -54,13 +54,13 @@ constructor(
 
 We need to call the parent class constructor while creating our constructor, similar to super keyword in java
 
-## commit 4: Getting random number from chainlink VRF part2
+## commit 5: Getting random number from chainlink VRF part2
 
 requestRandomWinner() will be called, which will emit a requestId
 fulfillRandomWords() will receive random values and stores them with your contract(or do whatever you want to do after that)
 In our case, it will transfer the ammount to the randomly picked address.
 
-## commit 5: Chainlink keepers (checkUpkeep)
+## commit 6: Chainlink keepers (checkUpkeep)
 
 fulfillRandomWords() is called internally once the random numbers are generated.
 So, we put our logic of transfering money to the winner here.
@@ -106,3 +106,21 @@ Adding enum RaffleState.
 block.timestamp returns the current timestamp of the blockchain.
 i_interval specifies the interval for each lottery.
 s_lastTimeStamp will be updated everytime the winner is selected.
+
+## commit 7: Chainlink keepers (performUpkeep)
+
+changing checkUpkeep to public so that we can call it from performUpkeep
+
+checkUpkeep: Runs off-chain at every block to determine if the performUpkeep function should be called on-chain.
+
+performUpkeep: Contains the logic that should be executed on-chain when checkUpkeep returns true.
+
+If checkupkeep returns true, the performupkeep is called by the chainlink keeper nodes.
+
+From the documentation :When checkUpkeep returns upkeepNeeded == true, the Keeper node broadcasts a transaction to the blockchain to execute your performUpkeep function on-chain with performData as an input.
+
+We should always check the conditions again i.e. call checkupkeep inside the performUpkeep, and do the required things, if the upkeep is needed.
+
+In our example, we check for checkUpkeep and only then, call the i_vrfCoordinator.requestRandomWords() to get the random words requestID, which will be used to call fulfillRandomWords() by the chainlink VRF, which will finally get the index of winner of lottery and will send the amount to the winner, and will reset the state of the contract state variables.
+
+All the functions, which don't even read the state variables should be named as pure (This decreases the cost).
