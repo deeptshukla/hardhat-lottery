@@ -124,3 +124,23 @@ We should always check the conditions again i.e. call checkupkeep inside the per
 In our example, we check for checkUpkeep and only then, call the i_vrfCoordinator.requestRandomWords() to get the random words requestID, which will be used to call fulfillRandomWords() by the chainlink VRF, which will finally get the index of winner of lottery and will send the amount to the winner, and will reset the state of the contract state variables.
 
 All the functions, which don't even read the state variables should be named as pure (This decreases the cost).
+
+## commit 8:
+
+```javascript
+module.exports = async function ({ getNamedAccounts, deployments }) {
+    const { deploy, log } = deployments
+    const { deployer } = await getNamedAccounts()
+}
+
+// hardhat-deploy adds few more features to hardhat/hre
+// We use getNamedAccounts() to get the names for the accounts defined in hardhat-config.js
+// We can export tags in from the deploy scripts, and can be run at once using
+// `await deployments.fixture(['MyContract'])`
+```
+
+-The chainlinkVRF can be tested using the mock provided.
+-It also contains the createSubscription and other functions, which can be used to add the smart contract to the subscription for VRF.
+-For testnet, we have done this manually, by creating a subscription, funding it, and adding our contract address to the subscribers.
+
+Still not sure, how is the fulfilaRandomWords is being called on calling requestRandomWords. ??
