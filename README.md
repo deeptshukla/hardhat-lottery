@@ -144,3 +144,10 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
 -For testnet, we have done this manually, by creating a subscription, funding it, and adding our contract address to the subscribers.
 
 Still not sure, how is the fulfilaRandomWords is being called on calling requestRandomWords. ??
+
+## commit 9:
+
+We spend gas only when the state is updated.
+So, all the view/pure functions are free.
+If we need to call a non view/pure function, without spending any gas, we can use callStatic
+raffle.callStatic.checkUpkeep();

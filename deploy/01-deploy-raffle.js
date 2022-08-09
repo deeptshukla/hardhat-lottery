@@ -11,11 +11,12 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     const chainId = network.config.chainId
     let vrfCoordinatorV2Address
     if (developmentChains.includes(network.name)) {
+        console.log(`includes ${network.name}`)
         vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
         // vrfCoordinatorV2Mock = await deployments.get("VRFCoordinatorV2Mock")
         vrfCoordinatorV2Address = vrfCoordinatorV2Mock.address
         const txnResponse = await vrfCoordinatorV2Mock.createSubscription()
-        const txnReceipt = await txnResponse.wait(1)
+        const txnReceipt = await txnResponse.wait()
         subscriptionId = txnReceipt.events[0].args.subId
         // Fund the subscription
         await vrfCoordinatorV2Mock.fundSubscription(subscriptionId, VRF_SUB_FUND_AMOUNT)
@@ -45,7 +46,10 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         waitConfirmations: network.config.blockConfirmations || 1,
     })
     log("Raffle deployed!")
-    log(`Raffle deployed at ${raffle.address}`)
+
+    if (developmentChains.includes(network.name)) {
+        vrfCoordinatorV2Mock.addConsumer(subscriptionId, raffle.address)
+    }
 
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         log("Verifying...")
@@ -60,6 +64,6 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     // log(await raffle.getLatestTimeStamp())
     // log(await raffle.getRaffleState())
     // const contract = await ethers.getContract("Raffle", deployer)
-    // log(await contract.getRaffleState())
+    // console.log(await contract.getInterval())
 }
 module.exports.tags = ["all", "raffle"]
