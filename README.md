@@ -151,3 +151,12 @@ We spend gas only when the state is updated.
 So, all the view/pure functions are free.
 If we need to call a non view/pure function, without spending any gas, we can use callStatic
 raffle.callStatic.checkUpkeep();
+
+## commit 10:
+
+```solidity
+const { deploy, log } = deployments
+```
+
+log obtained from here is shown only when running hh deploy
+console.log is shown even during the hh test

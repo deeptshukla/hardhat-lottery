@@ -11,7 +11,6 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     const chainId = network.config.chainId
     let vrfCoordinatorV2Address
     if (developmentChains.includes(network.name)) {
-        console.log(`includes ${network.name}`)
         vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
         // vrfCoordinatorV2Mock = await deployments.get("VRFCoordinatorV2Mock")
         vrfCoordinatorV2Address = vrfCoordinatorV2Mock.address
@@ -48,7 +47,10 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     log("Raffle deployed!")
 
     if (developmentChains.includes(network.name)) {
-        vrfCoordinatorV2Mock.addConsumer(subscriptionId, raffle.address)
+        await vrfCoordinatorV2Mock.addConsumer(subscriptionId, raffle.address)
+        console.log("Consumer added to  subscription!")
+    } else {
+        console.log("Consumer not added to subscription!")
     }
 
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
@@ -61,7 +63,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     log("-------------------------------------")
 
     // log(await raffle.geNumWords())
-    // log(await raffle.getLatestTimeStamp())
+    // log(await raffle.getLastTimeStamp())
     // log(await raffle.getRaffleState())
     // const contract = await ethers.getContract("Raffle", deployer)
     // console.log(await contract.getInterval())
