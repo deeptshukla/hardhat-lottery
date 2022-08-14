@@ -34,7 +34,9 @@ if (!developmentChains.includes(network.name)) {
         })
         describe("enterRaffle", () => {
             it("reverts when not paying enough", async () => {
-                await expect(raffle.enterRaffle()).to.be.revertedWith("Raffle__SendMoreToEnterRaffle")
+                await expect(raffle.enterRaffle()).to.be.revertedWith(
+                    "Raffle__SendMoreToEnterRaffle"
+                )
             })
             it("adds player to players when they enter raffle", async () => {
                 const txn = await raffle.enterRaffle({ value: raffleEntranceFee })
@@ -189,15 +191,14 @@ if (!developmentChains.includes(network.name)) {
                 // deployer has already participated, and we have increased the time of evm and have mined a block.
                 // Now, we can add 3 more players, and add call performUpkeep pretending to be chainlink keepers.
                 // As all the conditions for checkupKeep are true, performUpkeep will call
-                // VRFCoordinatorV2Mock.requestRandomWords. Now we have already subscribed to this contract. 
+                // VRFCoordinatorV2Mock.requestRandomWords. Now we have already subscribed to this contract.
                 // This contract, is kind of manager for all the consumers. It will return the requestId on requestRandomWords.
-                // Chainlink nodes, will keep listening the events, and will get the requestId, consumer and other data about 
+                // Chainlink nodes, will keep listening the events, and will get the requestId, consumer and other data about
                 // who called the coordinator contract.
                 // Now, Chainlink nodes will call the coordinator.fulfillRandomWords(), which will generate the random words, and will send them
                 // to the fulfillRandomWords() of the consumer contract.
                 // Now the function is being called for what to be done when randomWords are provided to the contract.
-
-                
+                console.log("THE BIG DADDY TEST!!!")
                 const additionalEntrants = 3
                 const accounts = await ethers.getSigners()
                 const startingAccountIndex = 1 // developer has been added at 0th index
@@ -211,10 +212,77 @@ if (!developmentChains.includes(network.name)) {
                     const accountConnectedRaffle = raffle.connect(accounts[i])
                     await accountConnectedRaffle.enterRaffle({ value: raffleEntranceFee })
                 }
+
                 const startingTimeStamp = await raffle.getLastTimeStamp()
                 // perform upkeep (Mock being chainlink keepers)
                 // call fulfillRandomWords
-                const 
+
+                // Lets create conditions when checkUpkeep returns true.
+                // Now impersonating chainlink keepers and calling performUpkeep.
+                // performUpkeep will call coordinator.requestRandomWords which will call the our contract with
+                // Let's create a new listener for event WinnerPicked
+                // Order: call performUpkeep(We are doing this manually impersonating chainlink keepers)
+                // performUpkeep will call checkUpkeep and finally will call coordinator contract for running coordinator.requestRandomWords
+                // ,which will callback fulfillRandomWords() of contract.
+                // TODO:
+                // check if the getBalance() costs money or not, call getBalance() and call function that returns getBalance from raffle.sol
+                console.log("THE BIG DADDY TEST2!!!")
+                await new Promise(async (resolve, reject) => {
+                    console.log("PART1")
+                    raffle.once("WinnerPicked", async () => {
+                        console.log("WinnerPicked event fired")
+                        try {
+                            const recentWinner = await raffle.getRecentWinner()
+                            const raffleState = await raffle.getRaffleState()
+                            const winnerBalance = await accounts[1].getBalance()
+                            const endingTimeStamp = await raffle.getLastTimeStamp()
+                            const numOfPlayers = await raffle.getNumberOfPlayers()
+                            assert.equal(numOfPlayers.toNumber(), 0)
+                            console.log("1")
+                            await expect(raffle.getPlayer(0)).to.be.reverted
+                            console.log("2")
+                            assert.equal(recentWinner.toString(), accounts[1].address)
+                            console.log("3")
+                            assert.equal(raffleState, 0)
+                            console.log("4")
+                            assert.equal(
+                                winnerBalance.toString(),
+                                startingBalance
+                                    .add(
+                                        raffleEntranceFee
+                                            .mul(additionalEntrants)
+                                            .add(raffleEntranceFee)
+                                    )
+                                    .toString()
+                            )
+                            console.log("5")
+                            assert(endingTimeStamp > startingTimeStamp)
+                            console.log("6")
+                            resolve()
+                        } catch (error) {
+                            console.log(`inside catch error with error ' ${error}`)
+                            reject(error)
+                        }
+                    })
+                    console.log("PART2")
+
+                    console.log("THE BIG DADDY TEST3!!!")
+
+                    // const recentWinnerOld = await raffle.getRecentWinner()
+                    console.log("before running performUpkeep")
+                    const tx = await raffle.performUpkeep("0x")
+                    console.log("before running wait")
+
+                    const txScript = await tx.wait(1)
+                    console.log("before geting starting balance")
+                    startingBalance = await accounts[1].getBalance()
+                    console.log("before running fulfillRandomWords")
+                    const tx2 = await vrfCoordinatorV2Mock.fulfillRandomWords(
+                        txScript.events[1].args.requestId,
+                        raffle.address
+                    )
+                    console.log("Done running all of these, waiting for event")
+                })
             })
         })
     })

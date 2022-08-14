@@ -8,7 +8,7 @@ module.exports = async (contractAddress, args) => {
             constructorArguments: args,
         })
     } catch (error) {
-        if (e.message.toLowerCase().includes("already verified")) {
+        if (error.message.toLowerCase().includes("already verified")) {
             console.log("Already verified")
         } else {
             console.log(error)

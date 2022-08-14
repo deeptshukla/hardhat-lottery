@@ -22,7 +22,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     } else {
         vrfCoordinatorV2Address = networkConfig[chainId]["vrfCoordinatorV2"]
         subscriptionId = networkConfig[chainId]["subscriptionId"]
-        callbackGasLimit = networkConfig[chainId]["callbackGasLimit"]
+        // callbackGasLimit = networkConfig[chainId]["callbackGasLimit"]
     }
 
     const entranceFee = networkConfig[chainId]["entranceFee"]
@@ -43,6 +43,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         args: args,
         log: true,
         waitConfirmations: network.config.blockConfirmations || 1,
+        skipIfAlreadyDeployed: true,
     })
     log("Raffle deployed!")
 

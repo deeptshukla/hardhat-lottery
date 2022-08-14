@@ -160,3 +160,29 @@ const { deploy, log } = deployments
 
 log obtained from here is shown only when running hh deploy
 console.log is shown even during the hh test
+
+We can create promises with
+
+```javascript
+new Promise(async (resolve, reject) => {
+    try {
+        //part of code
+        resolve()
+    } catch (error) {
+        //will be called if it fails
+        reject(error)
+    }
+})
+```
+
+So, we have setup a listener inside the Promise.
+Afte setting up listerner, we mimic the chainlink nodes, and call performUpkeep (keeping in mind that checkUpkeep has returned true, as we did increase the evm_time, mined the block, and added few participants in the lottery ). Here we are immitating chainlink keepers.
+Now we will call fulfilRandomWords of coordinator , which will itself call our raffle's fulfilRandomWords, setting up the winner and transfering amout and reseting the state of the raffle
+
+For getting balance of any user, we can call:
+accounts = ethers.getSigners()
+const balance = await accounts[0].getBalance()
+
+we cant use
+const balance = await deployer.getBalance()
+as the deployer is just an address, not the signer object, having all the functions like getBalance
